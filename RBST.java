@@ -5,12 +5,15 @@ public class RBST<Key extends Comparable<Key>, Value>
   
   private boolean isRed(Node n)
   {
+    if (n == null) {return BLACK;}
     return n.color == RED;
   }
   
   private void flipColors(Node n)
   {
-  
+    n.color = !n.color;
+    if (n.left != null) {n.left.color = !n.left.color;}
+    if (n.right != null) {n.right.color = !n.right.color;}
   }
   
   private Node rotateLeft(Node top)
@@ -71,7 +74,7 @@ public class RBST<Key extends Comparable<Key>, Value>
     
     if (isRed(top.left) && isRed(top.left.left))
     {
-      top = rotateRight(h);
+      top = rotateRight(top);
     }
     
     if (isRed(top.left) && isRed(top.right))
@@ -81,6 +84,94 @@ public class RBST<Key extends Comparable<Key>, Value>
     
     top.size = size(top.left) + size(top.right);
     return top;
+  }
+  
+  private Node moveRedLeft(Node top)
+  {
+    flipColors(top);
+    if (isRed(top.right.left))
+    {
+      top.right = rotateRight(top.right);
+      top = rotateLeft(top);
+      flipColors(top);
+    }
+    
+    return top;
+  }
+  
+  private Node moveRedRight(Node top)
+  {
+    flipColors(top);
+    if (isRed(top.left.left))
+    {
+      top = rotateRight(top);
+      flipColors(top);
+    }
+    
+    return top;
+  }
+  
+  public void deleteMin()
+  {
+    root = deleteMin(root);
+    root.color = BLACK;
+  }
+  
+  private Node deleteMin(Node top)
+  {
+    if (top.left == null) {return null;}
+    if (!isRed(top.left) && !isRed(top.left.left)) {top = moveRedLeft(top);}
+    
+    top.left = deleteMin(top.left);
+    return balance(top);
+  }
+  
+  public void delete(Key k)
+  {
+    root = delete(root, k);
+    root.color = BLACK;
+  }
+  
+  private Node delete(Node top, Key k)
+  {
+    if (k == null) {return null;}
+    if (k.compareTo(top.key) < 0) 
+    {
+      if (!isRed(top.left) && !isRed(top.left.left)) {top = moveRedLeft(top);}
+      top.left = delete(top.left, k);
+    }
+    else 
+    {
+      if (isRed(top.left)) {top = rotateRight(top);}
+      if (k.compareTo(top.key) == 0 && top.right == null) {return null;} 
+      if (!isRed(top.right) && !isRed(top.right.left)) {top = moveRedRight(top);}
+    }
+  }
+  
+  private Node balance(Node top)
+  {
+    if (isRed(top.right) && !isRed(top.left))
+    {
+      top = rotateLeft(top);
+    }
+    
+    if (isRed(top.left) && isRed(top.left.left))
+    {
+      top = rotateRight(top);
+    }
+    
+    if (isRed(top.left) && isRed(top.right))
+    {
+      flipColors(top);
+    }
+    
+    return top;
+  }
+  
+  private int size(Node n)
+  {
+    if (n == null) {return 0;}
+    return n.size;
   }
   
   private class Node
