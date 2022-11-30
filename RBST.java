@@ -57,7 +57,7 @@ public class RBST<Key extends Comparable<Key>, Value>
   
   private Node put(Node top, Key k, Value v)
   {
-    if (top == null) {return new Node(k, v, 1, RED);}
+    if (top == null) {return new Node(k, v, RED);}
     
     int c = k.compareTo(top.key);
     if (c < 0) {top.left = put(top.left, k, v);}
@@ -89,6 +89,13 @@ public class RBST<Key extends Comparable<Key>, Value>
     Value val;
     Node left, right;
     boolean color;
-    int size;
+    int size = 1;
+    
+    public Node(Key k, Value v, boolean c)
+    {
+        this.k = k;
+        this.v = v;
+        this.color = c;
+    }
   }
 }
