@@ -1,4 +1,4 @@
-public class RBST<Key extends Comparable<Key>, Value>
+public class RBBST<Key extends Comparable<Key>, Value>
 {
   public static final boolean RED = true;
   public static final boolean BLACK = false;
@@ -135,17 +135,26 @@ public class RBST<Key extends Comparable<Key>, Value>
   private Node delete(Node top, Key k)
   {
     if (k == null) {return null;}
-    if (k.compareTo(top.key) < 0) 
+    if (k.compareTo(top.key) < 0) //Going left
     {
       if (!isRed(top.left) && !isRed(top.left.left)) {top = moveRedLeft(top);}
       top.left = delete(top.left, k);
     }
     else 
     {
-      if (isRed(top.left)) {top = rotateRight(top);}
-      if (k.compareTo(top.key) == 0 && top.right == null) {return null;} 
+      if (isRed(top.left)) {top = rotateRight(top);} //Make sure right node is red
+      if (k.compareTo(top.key) == 0 && top.right == null) {return null;} //right being null implies left is null, and that we are red
       if (!isRed(top.right) && !isRed(top.right.left)) {top = moveRedRight(top);}
+      if (k.compareTo(top.key) == 0)
+      {
+        top.val = get(top.right, min(top.right).k);
+        top.key = min(top.right).key;
+        top.right = deleteMin(top.right);
+      }
+      else {top.right = delete(top.right, k);}
     }
+    
+    return balance(top);
   }
   
   private Node balance(Node top)
