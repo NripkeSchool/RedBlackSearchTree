@@ -200,6 +200,32 @@ public class RBBST<Key extends Comparable<Key>, Value>
     return n.size;
   }
   
+  public Key min()
+  {
+      Node n = min(root);
+      return n == null ? null : n.k;
+  }
+    
+  private Node min(Node parent)
+  {
+      if (parent == null) {return null;}
+      if (parent.left == null) {return parent;}
+      return min(parent.left);
+  }
+    
+  public Key max()
+  {
+      Node n = max(root);
+      return n == null ? null : n.k;
+  }
+    
+  private Node max(Node parent)
+  {
+      if (parent == null) {return null;}
+      if (parent.right == null) {return parent;}
+      return max(parent.right);
+  }
+  
   private class Node
   {
     Key key;
