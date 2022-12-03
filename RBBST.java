@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class RBBST<Key extends Comparable<Key>, Value>
 {
   public static final boolean RED = true;
@@ -148,7 +150,7 @@ public class RBBST<Key extends Comparable<Key>, Value>
       if (!isRed(top.right) && !isRed(top.right.left)) {top = moveRedRight(top);}
       if (k.compareTo(top.key) == 0)
       {
-        top.val = get(top.right, min(top.right).k);
+        top.val = get(top.right, min(top.right).key).val;
         top.key = min(top.right).key;
         top.right = deleteMin(top.right);
       }
@@ -165,13 +167,13 @@ public class RBBST<Key extends Comparable<Key>, Value>
       return n.val;
   }
     
-  private Node get(Node parent, Key k)
+  private Node get(Node top, Key k)
   {
-      if (parent == null) {return null;}
-      if (parent.k == k) {return parent;}
-      if (k.compareTo(parent.k) > 0) {return get(parent.right, k);}
+      if (top == null) {return null;}
+      if (top.key == k) {return top;}
+      if (k.compareTo(top.key) > 0) {return get(top.right, k);}
         
-      return get(parent.left, k);
+      return get(top.left, k);
   }
   
   private Node balance(Node top)
@@ -202,28 +204,94 @@ public class RBBST<Key extends Comparable<Key>, Value>
   
   public Key min()
   {
-      Node n = min(root);
-      return n == null ? null : n.k;
+    Node n = min(root);
+    return n == null ? null : n.key;
   }
     
-  private Node min(Node parent)
+  private Node min(Node top)
   {
-      if (parent == null) {return null;}
-      if (parent.left == null) {return parent;}
-      return min(parent.left);
+    if (top == null) {return null;}
+    if (top.left == null) {return top;}
+    return min(top.left);
   }
     
   public Key max()
   {
-      Node n = max(root);
-      return n == null ? null : n.k;
+    Node n = max(root);
+    return n == null ? null : n.key;
   }
     
-  private Node max(Node parent)
+  private Node max(Node top)
   {
-      if (parent == null) {return null;}
-      if (parent.right == null) {return parent;}
-      return max(parent.right);
+    if (top == null) {return null;}
+    if (top.right == null) {return top;}
+    return max(top.right);
+  }
+  
+  public Key floor(Key k)
+  {
+    return floor(root, k).key;
+  }
+    
+  private Node floor(Node top, Key k)
+  {
+    if (top == null) {return null;}
+        
+    int c = top.key.compareTo(k);
+    if (c > 0) {return floor(top.left, k);}
+    if (c < 0) 
+    {
+      Node potentialK = floor(top.right, k);
+      if (potentialK == null) {return top;} //If not null, then this is best
+      return potentialK;
+    }
+        
+    return top;
+  }
+    
+  public Key ceiling(Key k)
+  {
+    return ceiling(root, k).key;
+  }
+    
+  private Node ceiling(Node top, Key k)
+  {
+    if (top == null) {return null;}
+        
+    int c = top.key.compareTo(k);
+    if (c < 0) {return ceiling(top.right, k);}
+    if (c > 0) 
+    {
+      Node potentialK = ceiling(top.left, k);
+      if (potentialK == null) {return top;} //If not null, then this is best
+      return potentialK;
+    }
+        
+    return top;
+  }
+  
+  public Iterable<Key> keys() 
+  {
+    return keys(min(), max());
+  }
+  
+  public Iterable<Key> keys(Key min, Key max) 
+  {
+    ArrayList<Key> q = new ArrayList<Key>();
+    keys(root, q, min, max);
+    return q;
+  }
+    
+  private void keys(Node top, ArrayList<Key> q, Key min, Key max)
+  {
+    if (top == null) {return;}
+
+    int cmin = min.compareTo(top.key);
+    int cmax = max.compareTo(top.key);
+
+    if (cmin < 0) {keys(top.left, q, min, max);}
+    if (cmin <= 0 && cmax >= 0) {q.add(top.key);}
+    if (cmax > 0) {keys(top.right, q, min, max);}
   }
   
   private class Node
@@ -236,8 +304,8 @@ public class RBBST<Key extends Comparable<Key>, Value>
     
     public Node(Key k, Value v, boolean c)
     {
-        this.k = k;
-        this.v = v;
+        this.key = k;
+        this.val = v;
         this.color = c;
     }
   }
